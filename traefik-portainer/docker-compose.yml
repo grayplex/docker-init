@@ -34,7 +34,7 @@ services:
       - /var/run/docker.dock:/var/run/docker.sock:ro
       - portainer_data:/data
       - /etc/localtime:/etc/localtime:ro
-    label:
+    labels:
       - "traefik.enable=true"
       - "traefik.http.routers.portainer.entrypoints=web"
       - "traefik.http.routers.portainer.rule=Path(/portainer)"
