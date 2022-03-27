@@ -1,0 +1,54 @@
+version: '3'
+
+services:
+  traefik:
+    image: traefik:v2.6
+    container_name: traefik
+    restart: unless-stopped
+    command: 
+      - "--api"
+      - "--api.dashboard"
+      - "--providers.docker"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /acme.json:/root/acme.json
+      - /traefik.yml:/root/traefik.yml
+      - /traefik_dynamic.yml:/root/traefik_dynamic.yml
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      web:
+        aliases:
+          - traefik
+  portainer:
+    image: portiner/portainer:latest
+    container_name: portainer
+    restart: unless-stopped
+    networks:
+      web:
+        aliases:
+          - portainer
+    volumes:
+      - /var/run/docker.dock:/var/run/docker.sock:ro
+      - portainer_data:/data
+      - /etc/localtime:/etc/localtime:ro
+    label:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.entrypoints=web"
+      - "traefik.http.routers.portainer.rule=Path(/portainer)"
+      - "traefik.http.middlewares.portainer-websecure-redirect.redirectscheme.scheme=websecure"
+      - "traefik.http.routers.portainer-secure.entrypoints=websecure"
+      - "traefik.http.routers.portainer-secure.rule=Path(/portainer)"
+      - "traefik.http.routers.portainer-secure.tls=true"
+      - "traefik.http.routers.portainer-secure.tls.certresolver=lets-encrypt"
+      - "traefik.http.routers.portainer-secure.service=portainer"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+
+volumes:
+  portainer_data:
+
+networks:
+  web:
+    

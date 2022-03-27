@@ -1,0 +1,13 @@
+http:
+  middlewares:
+    simpleAuth:
+      basicAuth:
+        users: admin:$apr1$beW9jB01$0Fh3FlEbR0.SFgbIB8cJa0
+  routers:
+    api:
+      rule: Path(/proxy)
+      entrypoints: websecure
+      middlewares: simpleAuth
+      service: api@internal
+      tls:
+        certResolver: lets-encrypt
